@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+
 class AttentionHead(nn.Module):
     """Single Attention Head with Masking Support.
 
@@ -84,6 +85,7 @@ class AttentionHead(nn.Module):
 
         return output
 
+
 class MultiHeadAttention(nn.Module):
     """Multi-Head Attention mechanism with Masking Support.
 
@@ -102,7 +104,7 @@ class MultiHeadAttention(nn.Module):
 
     def __init__(self, d_model: int, num_attention_heads: int):
         super(MultiHeadAttention, self).__init__()
-        
+
         # Define the heads and linear layer
         d = d_model // num_attention_heads
         self.d_model = d_model
@@ -111,7 +113,6 @@ class MultiHeadAttention(nn.Module):
             [AttentionHead(d_model, d, d, d) for _ in range(num_attention_heads)]
         )
         self.output_linear = nn.Linear(num_attention_heads * d, d_model)
-
 
     def forward(self, hidden_state, mask=None):
         """Forward pass for the multi-head attention layer with optional causal mask.
@@ -134,6 +135,7 @@ class MultiHeadAttention(nn.Module):
         x = self.output_linear(x)
 
         return x
+
 
 class FeedForward(nn.Module):
     """FeedForward module for the Transformer.
@@ -167,9 +169,10 @@ class FeedForward(nn.Module):
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
         """
-        #s Implement the forward pass for the feed-forward network
+        # s Implement the forward pass for the feed-forward network
         x = self.linear_2(self.gelu(self.linear_1(x)))
         return x
+
 
 class TransformerDecoderLayer(nn.Module):
     """Transformer Decoder Layer.
@@ -218,22 +221,23 @@ class TransformerDecoderLayer(nn.Module):
 
         return x
 
+
 class Embeddings(nn.Module):
     """Embeddings module for the Transformer.
 
-      This module combines token embeddings and positional embeddings and applies
-      layer normalization.
+    This module combines token embeddings and positional embeddings and applies
+    layer normalization.
 
-      Args:
-          vocab_size (int): The size of the vocabulary.
-          max_position_embeddings (int): The maximum number of positions for positional embeddings.
-          d_model (int): The dimension of the input embeddings.
+    Args:
+        vocab_size (int): The size of the vocabulary.
+        max_position_embeddings (int): The maximum number of positions for positional embeddings.
+        d_model (int): The dimension of the input embeddings.
 
-      Attributes:
-          token_embeddings (nn.Embedding): Embedding layer for token embeddings.
-          position_embeddings (nn.Embedding): Embedding layer for positional embeddings.
-          layer_norm (nn.LayerNorm): Layer normalization applied after combining embeddings.
-      """
+    Attributes:
+        token_embeddings (nn.Embedding): Embedding layer for token embeddings.
+        position_embeddings (nn.Embedding): Embedding layer for positional embeddings.
+        layer_norm (nn.LayerNorm): Layer normalization applied after combining embeddings.
+    """
 
     def __init__(self, vocab_size: int, max_position_embeddings: int, d_model: int):
         super(Embeddings, self).__init__()
@@ -265,6 +269,7 @@ class Embeddings(nn.Module):
 
         return embeddings
 
+
 class TransformerDecoder(nn.Module):
     """Transformer Decoder.
 
@@ -284,8 +289,15 @@ class TransformerDecoder(nn.Module):
         layers (nn.ModuleList): List of Transformer decoder layers.
     """
 
-    def __init__(self, vocab_size: int, max_position_embeddings: int, d_model: int,
-                 num_attention_heads: int, intermediate_size: int, num_hidden_layers: int):
+    def __init__(
+        self,
+        vocab_size: int,
+        max_position_embeddings: int,
+        d_model: int,
+        num_attention_heads: int,
+        intermediate_size: int,
+        num_hidden_layers: int,
+    ):
         super(TransformerDecoder, self).__init__()
         # Define the embeddings layer and the decoder layers
         self.embeddings = Embeddings(vocab_size, max_position_embeddings, d_model)
@@ -314,6 +326,7 @@ class TransformerDecoder(nn.Module):
 
         return x
 
+
 class TransformerForLanguageModeling(nn.Module):
     """Transformer model with a language modeling head for text generation.
 
@@ -330,11 +343,25 @@ class TransformerForLanguageModeling(nn.Module):
         lm_head (nn.Linear): Linear layer mapping hidden states to vocabulary logits.
     """
 
-    def __init__(self, vocab_size: int, max_position_embeddings: int, d_model: int,
-                 num_attention_heads: int, intermediate_size: int, num_hidden_layers: int):
+    def __init__(
+        self,
+        vocab_size: int,
+        max_position_embeddings: int,
+        d_model: int,
+        num_attention_heads: int,
+        intermediate_size: int,
+        num_hidden_layers: int,
+    ):
         super(TransformerForLanguageModeling, self).__init__()
         # Define the Transformer decoder and the language modeling head
-        self.transformer_decoder = TransformerDecoder(vocab_size, max_position_embeddings, d_model, num_attention_heads, intermediate_size, num_hidden_layers)
+        self.transformer_decoder = TransformerDecoder(
+            vocab_size,
+            max_position_embeddings,
+            d_model,
+            num_attention_heads,
+            intermediate_size,
+            num_hidden_layers,
+        )
         self.lm_head = nn.Linear(d_model, vocab_size)
 
     def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
